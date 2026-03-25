@@ -1,0 +1,77 @@
+generator client { provider = "prisma-client-js" }
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Customer {
+  id                String   @id @default(cuid())
+  fullName          String
+  email             String?  @unique
+  phone             String?
+  notes             String?
+  banned            Boolean  @default(false)
+  waivers           Waiver[]
+  memberships       Membership[]
+  checkIns          CheckIn[]
+  certifications    Certification[]
+  rentals           Rental[]
+}
+
+model Waiver {
+  id            String   @id @default(cuid())
+  customerId    String
+  customer      Customer @relation(fields: [customerId], references: [id])
+  signedAt      DateTime @default(now())
+  pdfUrl        String
+  isMinor       Boolean  @default(false)
+  expiresAt     DateTime @default(dbgenerated("NOW() + INTERVAL '1 year'"))
+}
+
+model Membership {
+  id                  String   @id @default(cuid())
+  customerId          String
+  customer            Customer @relation(fields: [customerId], references: [id])
+  tier                MembershipTier
+  startDate           DateTime
+  endDate             DateTime
+  status              MembershipStatus @default(ACTIVE)
+}
+
+enum MembershipTier { DAY_PASS PUNCH_CARD MONTHLY ANNUAL }
+enum MembershipStatus { ACTIVE EXPIRED CANCELLED }
+
+model CheckIn {
+  id          String   @id @default(cuid())
+  customerId  String
+  customer    Customer @relation(fields: [customerId], references: [id])
+  checkInAt   DateTime @default(now())
+  status      CheckInStatus
+  blockReason String?
+}
+
+enum CheckInStatus { SUCCESS BLOCKED }
+
+model Certification {
+  id          String   @id @default(cuid())
+  customerId  String
+  customer    Customer @relation(fields: [customerId], references: [id])
+  type        CertType
+}
+
+enum CertType { TOP_ROPE LEAD AUTOBELAY }
+
+model Rental {
+  id            String   @id @default(cuid())
+  customerId    String
+  customer      Customer @relation(fields: [customerId], references: [id])
+  equipmentName String
+  checkedOutAt  DateTime
+}
+
+model RouteSet {
+  id          String   @id @default(cuid())
+  wallSection String
+  setDate     DateTime
+}
