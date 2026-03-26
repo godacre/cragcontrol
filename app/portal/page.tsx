@@ -20,7 +20,7 @@ export default function MemberPortal() {
         <input
           type="text"
           value={input}
-          onChange={e => setInput(e.target.value)}
+          onChange={(e) => setInput(e.target.value)}
           placeholder="Scan QR or type member ID"
           className="w-full bg-white text-black rounded-3xl px-8 py-8 text-3xl mb-8"
         />
@@ -33,11 +33,6 @@ export default function MemberPortal() {
             <p className="text-xl mt-4">Next: {result.nextClass}</p>
           </div>
         )}
-
-        <div className="mt-16 grid grid-cols-2 gap-6">
-          <button className="bg-zinc-900 p-8 rounded-3xl text-left">📅 Book a Class</button>
-          <button className="bg-zinc-900 p-8 rounded-3xl text-left">🪨 Log My Send</button>
-        </div>
       </div>
     </div>
   );
