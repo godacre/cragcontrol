@@ -1,18 +1,12 @@
 'use client';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 
 export default function Login() {
   const [password, setPassword] = useState('');
-  const router = useRouter();
 
   const handleLogin = () => {
-    if (password === 'admin123' || password === 'crag123' || password === '') {
-      localStorage.setItem('cragcontrol_loggedIn', 'true');
-      router.push('/dashboard/checkin');
-    } else {
-      alert('Demo: use any password or leave blank');
-    }
+    localStorage.setItem('cragcontrol_loggedIn', 'true');
+    window.location.href = '/dashboard/checkin';
   };
 
   return (
