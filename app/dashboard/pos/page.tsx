@@ -1,40 +1,41 @@
 'use client';
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 export default function POS() {
   const [cart, setCart] = useState<any[]>([]);
-  const [paymentType, setPaymentType] = useState('card');
-  const router = useRouter();
 
-  const products = [ /* same as before */ ];
+  const products = [
+    { id: 1, name: 'Mammut Chalk 300g', price: 8.99 },
+    { id: 2, name: 'Climbing Tape', price: 6.49 },
+    { id: 3, name: 'La Sportiva Mythos VS', price: 129 },
+  ];
 
+  const addToCart = (product: any) => setCart([...cart, product]);
   const total = cart.reduce((sum, item) => sum + item.price, 0);
-
-  const completeSale = () => {
-    // Save sale for reports
-    const sales = JSON.parse(localStorage.getItem('cragcontrol_sales') || '[]');
-    sales.push({ date: new Date().toISOString(), total, paymentType, items: cart });
-    localStorage.setItem('cragcontrol_sales', JSON.stringify(sales));
-    
-    alert(`✅ Sale completed with ${paymentType.toUpperCase()}! Data routed to Reports.`);
-    setCart([]);
-    router.push('/dashboard/reports');
-  };
 
   return (
     <div>
       <h1 className="text-4xl font-bold mb-8">💰 Point of Sale</h1>
-      {/* Products list same as before */}
-      <div className="mt-8">
-        <label className="block mb-2 text-lg">Payment Type</label>
-        <select value={paymentType} onChange={e => setPaymentType(e.target.value)} className="bg-zinc-900 border border-zinc-700 rounded-2xl px-6 py-4 text-xl w-full">
-          <option value="cash">Cash</option>
-          <option value="card">Card</option>
-          <option value="account">On-Account</option>
-        </select>
+      <div className="grid grid-cols-2 gap-8">
+        <div>
+          {products.map(p => (
+            <button key={p.id} onClick={() => addToCart(p)} className="block w-full text-left bg-zinc-900 hover:bg-zinc-800 p-6 rounded-3xl mb-3 text-xl">
+              {p.name} – ${p.price}
+            </button>
+          ))}
+        </div>
+        <div className="bg-zinc-900 p-8 rounded-3xl">
+          <h2 className="text-2xl mb-4">Cart</h2>
+          {cart.map((item, i) => (
+            <div key={i} className="flex justify-between py-3 border-b border-zinc-700">
+              <span>{item.name}</span>
+              <span>${item.price}</span>
+            </div>
+          ))}
+          <div className="mt-8 text-3xl font-bold">Total: ${total.toFixed(2)}</div>
+          <button className="mt-8 w-full bg-green-500 py-6 rounded-3xl text-2xl">Complete Sale</button>
+        </div>
       </div>
-      <button onClick={completeSale} className="mt-8 w-full bg-green-500 py-8 rounded-3xl text-3xl font-medium">Complete Sale – ${total.toFixed(2)}</button>
     </div>
   );
 }
