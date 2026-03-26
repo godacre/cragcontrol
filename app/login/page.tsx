@@ -16,7 +16,7 @@ export default function Login() {
       localStorage.setItem('cragcontrol_loggedIn', 'true');
       router.push('/dashboard/checkin');
     } else {
-      alert('Demo passwords:\n• admin123 = Admin (full control)\n• crag123 or blank = Staff');
+      alert('Demo passwords:\nadmin123 = Admin (full control)\ncrag123 or blank = Staff');
     }
   };
 
@@ -25,8 +25,16 @@ export default function Login() {
       <div className="bg-zinc-900 p-10 rounded-3xl max-w-md w-full text-center">
         <h1 className="text-5xl mb-8">🏔️ CragControl</h1>
         <p className="text-xl mb-8">Front Desk Login</p>
-        <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Password" className="w-full bg-zinc-800 border border-zinc-700 rounded-3xl px-8 py-6 text-2xl mb-6" />
-        <button onClick={handleLogin} className="w-full bg-green-500 py-6 rounded-3xl text-2xl font-medium">Login</button>
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Password"
+          className="w-full bg-zinc-800 border border-zinc-700 rounded-3xl px-8 py-6 text-2xl mb-6"
+        />
+        <button onClick={handleLogin} className="w-full bg-green-500 py-6 rounded-3xl text-2xl font-medium">
+          Login
+        </button>
       </div>
     </div>
   );
