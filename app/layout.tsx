@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "CragControl - Climbing Gym OS",
-  description: "Full climbing gym management system",
+  title: "CragControl",
+  description: "Climbing Gym Operating System",
 };
 
 export default function RootLayout({
