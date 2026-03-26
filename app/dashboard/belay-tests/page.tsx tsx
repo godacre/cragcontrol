@@ -1,0 +1,29 @@
+'use client';
+import { useState } from 'react';
+
+export default function BelayTests() {
+  const [tests, setTests] = useState([
+    { id: 1, customer: 'Matthew Goodacre', type: 'Lead', result: 'Pass', date: '2026-03-25' },
+  ]);
+
+  const logTest = () => {
+    const newTest = { id: Date.now(), customer: 'New Climber', type: 'Top Rope', result: 'Pass', date: new Date().toISOString().split('T')[0] };
+    setTests([...tests, newTest]);
+    alert('✅ Belay test logged – certification updated');
+  };
+
+  return (
+    <div>
+      <h1 className="text-4xl font-bold mb-8">🧗 Belay / Certification Tests</h1>
+      <button onClick={logTest} className="mb-8 bg-green-500 px-10 py-5 rounded-3xl text-xl">+ Log New Test</button>
+      <div className="bg-zinc-900 p-8 rounded-3xl">
+        {tests.map(t => (
+          <div key={t.id} className="flex justify-between py-5 border-b">
+            <div>{t.customer} – {t.type}</div>
+            <div className="text-green-400">{t.result} ✓</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
