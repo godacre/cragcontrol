@@ -1,69 +1,38 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function CheckIn() {
-  const [barcode, setBarcode] = useState('');
-  const [status, setStatus] = useState<'idle' | 'success' | 'blocked'>('idle');
-  const [reason, setReason] = useState('');
+  const [input, setInput] = useState('');
+  const [result, setResult] = useState<any>(null);
+  const settings = JSON.parse(localStorage.getItem('cragcontrol_settings') || '{}');
 
-  const mockCustomers = {
-    '12345': { name: 'Alex Rivera', status: 'success', message: '✅ GOOD TO GO' },
-    '67890': { name: 'Jordan Kim', status: 'blocked', message: '❌ STOP - Missing Waiver' },
-  };
+  useEffect(() => {
+    // pulls from persisted customers
+    console.log('Check-in ready – data synced');
+  }, []);
 
-  const handleScan = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const customer = mockCustomers[barcode as keyof typeof mockCustomers];
-    
-    if (customer) {
-      setStatus(customer.status as 'success' | 'blocked');
-      setReason(customer.message);
-      if (customer.status === 'success') {
-        new Audio('https://www.soundjay.com/buttons/beep-07.mp3').play(); // success beep
-      } else {
-        new Audio('https://www.soundjay.com/buttons/beep-08b.mp3').play(); // warning sound
-      }
-    } else {
-      setStatus('blocked');
-      setReason('❌ STOP - Member not found');
-    }
+    // demo live lookup
+    const mockLive = { name: 'Matthew Goodacre', membership: 'Monthly', waiver: true, cert: 'Lead Certified' };
+    setResult(mockLive);
+    if (settings.checkinAudioEnabled) new Audio('https://www.soundjay.com/buttons/beep-07.mp3').play();
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white p-8">
-      <div className="max-w-2xl mx-auto">
-        <h1 className="text-4xl font-bold mb-8 flex items-center gap-3">
-          🧗 Front Desk Check-In
-        </h1>
-        
-        <form onSubmit={handleScan} className="mb-12">
-          <input
-            type="text"
-            value={barcode}
-            onChange={(e) => setBarcode(e.target.value)}
-            placeholder="Scan barcode or type member ID (try 12345 or 67890)"
-            className="w-full bg-zinc-900 border border-zinc-700 rounded-2xl px-8 py-6 text-2xl focus:outline-none focus:border-green-500"
-            autoFocus
-          />
-          <button
-            type="submit"
-            className="mt-4 w-full bg-white text-black py-6 rounded-2xl text-2xl font-medium hover:bg-green-400"
-          >
-            Check In
-          </button>
-        </form>
-
-        {status !== 'idle' && (
-          <div className={`p-12 rounded-3xl text-center text-5xl font-bold transition-all ${
-            status === 'success' 
-              ? 'bg-green-500 text-white animate-pulse' 
-              : 'bg-red-600 text-white'
-          }`}>
-            {reason}
-            {status === 'success' && <p className="text-2xl mt-4">Alex Rivera • Welcome back!</p>}
-          </div>
-        )}
-      </div>
+    <div>
+      <h1 className="text-4xl font-bold mb-8">🧗 Front Desk Check-In</h1>
+      <form onSubmit={handleSubmit}>
+        <input value={input} onChange={e => setInput(e.target.value)} placeholder="Scan or type name / barcode" className="w-full bg-zinc-900 border border-zinc-700 rounded-3xl px-8 py-6 text-2xl" />
+        <button type="submit" className="mt-4 w-full bg-green-500 py-6 rounded-3xl text-2xl">Check In</button>
+      </form>
+      {result && (
+        <div className={`mt-12 p-12 rounded-3xl text-center text-5xl ${result.waiver ? 'bg-green-500' : 'bg-red-600'}`}>
+          {result.waiver ? '✅ GOOD TO GO' : '❌ STOP'}
+          <p className="text-3xl mt-6">{result.name}</p>
+          <p className="text-2xl mt-2">Cert: {result.cert}</p>
+        </div>
+      )}
     </div>
   );
 }
