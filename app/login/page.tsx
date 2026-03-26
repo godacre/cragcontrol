@@ -7,16 +7,11 @@ export default function Login() {
   const router = useRouter();
 
   const handleLogin = () => {
-    if (password === 'admin123') {
-      localStorage.setItem('cragcontrol_role', 'admin');
-      localStorage.setItem('cragcontrol_loggedIn', 'true');
-      router.push('/dashboard/checkin');
-    } else if (password === 'crag123' || password === '') {
-      localStorage.setItem('cragcontrol_role', 'staff');
+    if (password === 'admin123' || password === 'crag123' || password === '') {
       localStorage.setItem('cragcontrol_loggedIn', 'true');
       router.push('/dashboard/checkin');
     } else {
-      alert('Demo passwords:\nadmin123 = Admin (full control)\ncrag123 or blank = Staff');
+      alert('Demo: use any password or leave blank');
     }
   };
 
@@ -29,12 +24,10 @@ export default function Login() {
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password"
+          placeholder="Password (demo)"
           className="w-full bg-zinc-800 border border-zinc-700 rounded-3xl px-8 py-6 text-2xl mb-6"
         />
-        <button onClick={handleLogin} className="w-full bg-green-500 py-6 rounded-3xl text-2xl font-medium">
-          Login
-        </button>
+        <button onClick={handleLogin} className="w-full bg-green-500 py-6 rounded-3xl text-2xl font-medium">Login</button>
       </div>
     </div>
   );
