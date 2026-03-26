@@ -9,7 +9,7 @@ export default function Home() {
     if (localStorage.getItem('cragcontrol_loggedIn') === 'true') {
       router.push('/dashboard/checkin');
     }
-  }, []);
+  }, [router]);
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white flex items-center justify-center">
