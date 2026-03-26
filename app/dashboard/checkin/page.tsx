@@ -8,7 +8,6 @@ export default function CheckIn() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setResult({ name: 'Matthew Goodacre', status: 'success' });
-    new Audio('https://www.soundjay.com/buttons/beep-07.mp3').play();
   };
 
   return (
