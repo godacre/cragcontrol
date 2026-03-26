@@ -3,18 +3,6 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
-const navItems = [
-  { name: 'Check-In', href: '/dashboard/checkin', icon: '🧗' },
-  { name: 'Point of Sale', href: '/dashboard/pos', icon: '💰' },
-  { name: 'Customers & CRM', href: '/dashboard/customers', icon: '👤' },
-  { name: 'Rentals & Inventory', href: '/dashboard/rentals', icon: '📦' },
-  { name: 'Classes & Certifications', href: '/dashboard/classes', icon: '📅' },
-  { name: 'Route Setting', href: '/dashboard/routes', icon: '🪨' },
-  { name: 'Reports', href: '/dashboard/reports', icon: '📊' },
-  { name: 'Staff', href: '/dashboard/staff', icon: '👥' },
-  { name: 'Belay Tests', href: '/dashboard/belay-tests', icon: '🧗' },
-];
-
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -27,11 +15,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const logout = () => {
     localStorage.removeItem('cragcontrol_loggedIn');
-    localStorage.removeItem('cragcontrol_role');
     router.push('/');
   };
-
-  const isAdmin = localStorage.getItem('cragcontrol_role') === 'admin';
 
   return (
     <div className="flex min-h-screen bg-zinc-950 text-white">
@@ -41,28 +26,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <h1 className="text-2xl font-bold">CragControl</h1>
         </div>
         <nav className="flex-1 space-y-1">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-lg ${
-                pathname === item.href ? 'bg-green-500 text-white' : 'hover:bg-zinc-800'
-              }`}
-            >
-              <span className="text-xl">{item.icon}</span>
-              {item.name}
-            </Link>
-          ))}
-          {isAdmin && (
-            <Link
-              href="/dashboard/settings"
-              className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-lg ${
-                pathname === '/dashboard/settings' ? 'bg-purple-500' : 'hover:bg-zinc-800'
-              }`}
-            >
-              ⚙️ Master Settings
-            </Link>
-          )}
+          <Link href="/dashboard/checkin" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-lg ${pathname === '/dashboard/checkin' ? 'bg-green-500' : 'hover:bg-zinc-800'}`}>
+            🧗 Check-In
+          </Link>
+          <Link href="/dashboard/pos" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-lg ${pathname === '/dashboard/pos' ? 'bg-green-500' : 'hover:bg-zinc-800'}`}>
+            💰 Point of Sale
+          </Link>
         </nav>
         <button onClick={logout} className="mt-auto text-red-400 hover:text-red-300 py-3">Logout</button>
       </div>
