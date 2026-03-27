@@ -5,7 +5,5 @@ model Class {
   endTime     DateTime
   instructorId String?
   instructor  Employee?      @relation(fields: [instructorId], references: [id])
-  capacity    Int            @default(12)   // ← NEW
-  description String?        // ← NEW
   checkIns    ClassCheckIn[]
 }
