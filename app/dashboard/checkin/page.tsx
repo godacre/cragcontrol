@@ -6,7 +6,7 @@ export default function CheckIn() {
   const [search, setSearch] = useState('');
   const [result, setResult] = useState<any>(null);
 
-  // Load customers from localStorage
+  // Load all customers from localStorage
   useEffect(() => {
     try {
       const saved = localStorage.getItem('cragcontrol_customers');
@@ -16,36 +16,42 @@ export default function CheckIn() {
     }
   }, []);
 
-  // Filter customers based on search
   const filteredCustomers = customers.filter(c =>
     c.name.toLowerCase().includes(search.toLowerCase())
   );
 
   const checkInMember = (customer: any) => {
-    const now = new Date();
+    const now = new Date().toISOString();
 
-    // Add visit to this customer
+    // Update customer with new visit
     const updatedCustomers = customers.map(c => {
       if (c.id === customer.id) {
         const visits = c.visits || [];
-        visits.push(now.toISOString());
-        return { ...c, visits, lastVisit: now.toISOString() };
+        visits.push(now);
+        return { ...c, visits, lastVisit: now };
       }
       return c;
     });
 
     localStorage.setItem('cragcontrol_customers', JSON.stringify(updatedCustomers));
 
-    // Show result
     setResult({
       ...customer,
       status: 'success',
       message: '✅ GOOD TO GO',
-      checkInTime: now.toLocaleTimeString()
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     });
 
-    // Play success sound
     new Audio('https://www.soundjay.com/buttons/beep-07.mp3').play();
+  };
+
+  const signOutMember = (customer: any) => {
+    setResult({
+      ...customer,
+      status: 'info',
+      message: '👋 Signed Out',
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    });
   };
 
   return (
@@ -62,8 +68,8 @@ export default function CheckIn() {
       />
 
       <div className="grid grid-cols-2 gap-8">
-        {/* Search Results */}
-        <div className="bg-zinc-900 p-6 rounded-3xl max-h-[600px] overflow-auto">
+        {/* Member List */}
+        <div className="bg-zinc-900 p-6 rounded-3xl max-h-[650px] overflow-auto">
           <h2 className="text-xl mb-4">Members</h2>
           {filteredCustomers.length === 0 && search && (
             <p className="text-zinc-400 py-8 text-center">No members found</p>
@@ -90,12 +96,29 @@ export default function CheckIn() {
           ))}
         </div>
 
-        {/* Check-In Result */}
+        {/* Result / Action Area */}
         {result && (
-          <div className="p-12 rounded-3xl text-center text-5xl font-bold bg-green-500">
+          <div className={`p-12 rounded-3xl text-center text-5xl font-bold transition-all ${
+            result.status === 'success' ? 'bg-green-500' : 'bg-blue-500'
+          }`}>
             {result.message}
             <p className="text-3xl mt-8">{result.name}</p>
-            <p className="text-2xl mt-3">Checked in at {result.checkInTime}</p>
+            <p className="text-2xl mt-3">at {result.time}</p>
+
+            <div className="mt-12 flex gap-4">
+              <button
+                onClick={() => setResult(null)}
+                className="flex-1 bg-white text-black py-6 rounded-3xl text-xl font-medium"
+              >
+                New Check-In
+              </button>
+              <button
+                onClick={() => signOutMember(result)}
+                className="flex-1 bg-zinc-800 py-6 rounded-3xl text-xl font-medium"
+              >
+                Sign Out
+              </button>
+            </div>
           </div>
         )}
       </div>
