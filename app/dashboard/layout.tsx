@@ -15,6 +15,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const logout = () => {
     localStorage.removeItem('cragcontrol_loggedIn');
+    localStorage.removeItem('cragcontrol_role');
     router.push('/');
   };
 
@@ -28,11 +29,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <nav className="flex-1 space-y-1">
           <Link href="/dashboard/checkin" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-lg ${pathname === '/dashboard/checkin' ? 'bg-green-500' : 'hover:bg-zinc-800'}`}>🧗 Check-In</Link>
           <Link href="/dashboard/pos" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-lg ${pathname === '/dashboard/pos' ? 'bg-green-500' : 'hover:bg-zinc-800'}`}>💰 Point of Sale</Link>
-          <Link href="/dashboard/customers" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-lg ${pathname === '/dashboard/customers' ? 'bg-green-500' : 'hover:bg-zinc-800'}`}>👤 Customers & CRM</Link>
-          <Link href="/dashboard/rentals" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-lg ${pathname === '/dashboard/rentals' ? 'bg-green-500' : 'hover:bg-zinc-800'}`}>📦 Rentals & Inventory</Link>
+          <Link href="/dashboard/customers" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-lg ${pathname === '/dashboard/customers' ? 'bg-green-500' : 'hover:bg-zinc-800'}`}>👤 Customers &amp; CRM</Link>
+          <Link href="/dashboard/rentals" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-lg ${pathname === '/dashboard/rentals' ? 'bg-green-500' : 'hover:bg-zinc-800'}`}>📦 Rentals &amp; Inventory</Link>
           <Link href="/dashboard/classes" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-lg ${pathname === '/dashboard/classes' ? 'bg-green-500' : 'hover:bg-zinc-800'}`}>📅 Classes</Link>
           <Link href="/dashboard/routes" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-lg ${pathname === '/dashboard/routes' ? 'bg-green-500' : 'hover:bg-zinc-800'}`}>🪨 Route Setting</Link>
           <Link href="/dashboard/reports" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-lg ${pathname === '/dashboard/reports' ? 'bg-green-500' : 'hover:bg-zinc-800'}`}>📊 Reports</Link>
+          <Link href="/dashboard/staff" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-lg ${pathname === '/dashboard/staff' ? 'bg-green-500' : 'hover:bg-zinc-800'}`}>👥 Staff &amp; Employees</Link>
         </nav>
         <button onClick={logout} className="mt-auto text-red-400 hover:text-red-300 py-3">Logout</button>
       </div>
