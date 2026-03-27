@@ -6,7 +6,7 @@ export default function CheckIn() {
   const [search, setSearch] = useState('');
   const [result, setResult] = useState<any>(null);
 
-  // Load real customers from localStorage
+  // Load customers from localStorage
   useEffect(() => {
     try {
       const saved = localStorage.getItem('cragcontrol_customers');
@@ -16,26 +16,36 @@ export default function CheckIn() {
     }
   }, []);
 
+  // Filter customers based on search
   const filteredCustomers = customers.filter(c =>
     c.name.toLowerCase().includes(search.toLowerCase())
   );
 
   const checkInMember = (customer: any) => {
-    const isGood = customer.waiver === true && 
-                  (customer.membership === 'Monthly' || customer.membership === 'Annual');
+    const now = new Date();
 
-    setResult({
-      ...customer,
-      status: isGood ? 'success' : 'blocked',
-      message: isGood ? '✅ GOOD TO GO' : '❌ STOP - Missing Waiver or Expired Membership'
+    // Add visit to this customer
+    const updatedCustomers = customers.map(c => {
+      if (c.id === customer.id) {
+        const visits = c.visits || [];
+        visits.push(now.toISOString());
+        return { ...c, visits, lastVisit: now.toISOString() };
+      }
+      return c;
     });
 
-    // Play sound
-    if (isGood) {
-      new Audio('https://www.soundjay.com/buttons/beep-07.mp3').play();
-    } else {
-      new Audio('https://www.soundjay.com/buttons/beep-08b.mp3').play();
-    }
+    localStorage.setItem('cragcontrol_customers', JSON.stringify(updatedCustomers));
+
+    // Show result
+    setResult({
+      ...customer,
+      status: 'success',
+      message: '✅ GOOD TO GO',
+      checkInTime: now.toLocaleTimeString()
+    });
+
+    // Play success sound
+    new Audio('https://www.soundjay.com/buttons/beep-07.mp3').play();
   };
 
   return (
@@ -46,7 +56,7 @@ export default function CheckIn() {
         type="text"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        placeholder="Search member by name or type barcode..."
+        placeholder="Search member by name..."
         className="w-full bg-zinc-900 border border-zinc-700 rounded-3xl px-8 py-6 text-2xl mb-8 focus:border-green-500 outline-none"
         autoFocus
       />
@@ -54,7 +64,7 @@ export default function CheckIn() {
       <div className="grid grid-cols-2 gap-8">
         {/* Search Results */}
         <div className="bg-zinc-900 p-6 rounded-3xl max-h-[600px] overflow-auto">
-          <h2 className="text-xl mb-4">Matching Members</h2>
+          <h2 className="text-xl mb-4">Members</h2>
           {filteredCustomers.length === 0 && search && (
             <p className="text-zinc-400 py-8 text-center">No members found</p>
           )}
@@ -82,12 +92,10 @@ export default function CheckIn() {
 
         {/* Check-In Result */}
         {result && (
-          <div className={`p-12 rounded-3xl text-center text-5xl font-bold transition-all ${
-            result.status === 'success' ? 'bg-green-500' : 'bg-red-600'
-          }`}>
+          <div className="p-12 rounded-3xl text-center text-5xl font-bold bg-green-500">
             {result.message}
             <p className="text-3xl mt-8">{result.name}</p>
-            <p className="text-2xl mt-3">Membership: {result.membership}</p>
+            <p className="text-2xl mt-3">Checked in at {result.checkInTime}</p>
           </div>
         )}
       </div>
