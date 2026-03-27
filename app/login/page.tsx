@@ -10,6 +10,7 @@ export default function Login() {
   const [adminPassword, setAdminPassword] = useState('');
   const router = useRouter();
 
+  // Check if first-time setup is needed
   useEffect(() => {
     const superAdminCreated = localStorage.getItem('cragcontrol_superAdminCreated');
     setSetupMode(!superAdminCreated);
@@ -17,15 +18,18 @@ export default function Login() {
 
   const handleLogin = () => {
     const users = JSON.parse(localStorage.getItem('cragcontrol_users') || '[]');
-    const user = users.find((u: any) => u.username === username && u.password === password);
+    const user = users.find((u: any) => 
+      u.username === username && u.password === password
+    );
 
     if (user) {
       localStorage.setItem('cragcontrol_role', user.role);
       localStorage.setItem('cragcontrol_loggedIn', 'true');
+      localStorage.setItem('cragcontrol_currentUser', JSON.stringify(user));
       alert(`Hello, ${user.name}!`);
       router.push('/dashboard/checkin');
     } else {
-      alert('Incorrect username or password. Try again.');
+      alert('Incorrect username or password. Please try again.');
     }
   };
 
@@ -52,23 +56,46 @@ export default function Login() {
     router.push('/dashboard/checkin');
   };
 
+  // First-time setup screen (only shows once)
   if (setupMode) {
     return (
       <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
         <div className="bg-zinc-900 p-10 rounded-3xl max-w-md w-full text-center">
           <h1 className="text-5xl mb-8">🏔️ CragControl</h1>
           <h2 className="text-3xl mb-6">First-Time Setup</h2>
-          <p className="text-zinc-400 mb-8">You are the first person to open the app.<br />Create your permanent Super Admin account.</p>
+          <p className="text-zinc-400 mb-8">
+            You are the first person to open the app.<br />
+            Create your permanent Super Admin account.
+          </p>
 
-          <input type="text" value={adminName} onChange={e => setAdminName(e.target.value)} placeholder="Your Full Name" className="w-full bg-zinc-800 border border-zinc-700 rounded-3xl px-8 py-6 text-2xl mb-6" />
-          <input type="password" value={adminPassword} onChange={e => setAdminPassword(e.target.value)} placeholder="Choose a Strong Password" className="w-full bg-zinc-800 border border-zinc-700 rounded-3xl px-8 py-6 text-2xl mb-8" />
+          <input
+            type="text"
+            value={adminName}
+            onChange={(e) => setAdminName(e.target.value)}
+            placeholder="Your Full Name"
+            className="w-full bg-zinc-800 border border-zinc-700 rounded-3xl px-8 py-6 text-2xl mb-6"
+          />
 
-          <button onClick={handleFirstTimeSetup} className="w-full bg-green-500 py-6 rounded-3xl text-2xl font-medium">Create Permanent Super Admin</button>
+          <input
+            type="password"
+            value={adminPassword}
+            onChange={(e) => setAdminPassword(e.target.value)}
+            placeholder="Choose a Strong Password"
+            className="w-full bg-zinc-800 border border-zinc-700 rounded-3xl px-8 py-6 text-2xl mb-8"
+          />
+
+          <button
+            onClick={handleFirstTimeSetup}
+            className="w-full bg-green-500 py-6 rounded-3xl text-2xl font-medium"
+          >
+            Create Permanent Super Admin
+          </button>
         </div>
       </div>
     );
   }
 
+  // Normal login screen
   return (
     <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
       <div className="bg-zinc-900 p-10 rounded-3xl max-w-md w-full text-center">
@@ -78,7 +105,7 @@ export default function Login() {
         <input
           type="text"
           value={username}
-          onChange={e => setUsername(e.target.value)}
+          onChange={(e) => setUsername(e.target.value)}
           placeholder="Username"
           className="w-full bg-zinc-800 border border-zinc-700 rounded-3xl px-8 py-6 text-2xl mb-6"
         />
@@ -86,12 +113,21 @@ export default function Login() {
         <input
           type="password"
           value={password}
-          onChange={e => setPassword(e.target.value)}
+          onChange={(e) => setPassword(e.target.value)}
           placeholder="Password"
           className="w-full bg-zinc-800 border border-zinc-700 rounded-3xl px-8 py-6 text-2xl mb-6"
         />
 
-        <button onClick={handleLogin} className="w-full bg-green-500 py-6 rounded-3xl text-2xl font-medium">Login</button>
+        <button
+          onClick={handleLogin}
+          className="w-full bg-green-500 py-6 rounded-3xl text-2xl font-medium"
+        >
+          Login
+        </button>
+
+        <p className="text-xs text-zinc-500 mt-8">
+          Permanent Super Admin already created
+        </p>
       </div>
     </div>
   );
