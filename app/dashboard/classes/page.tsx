@@ -1,87 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { prisma } from '@/lib/prisma';
-import { revalidatePath } from 'next/cache';
-
-type ClassWithDetails = {
-  id: string;
-  name: string;
-  startTime: Date;
-  endTime: Date;
-  instructor?: { fullName: string | null };
-  capacity: number;
-  description?: string | null;
-  _count: { checkIns: number };
-  checkIns: {
-    id: string;
-    customer: { fullName: string; email?: string | null };
-  }[];
-};
-
-async function getClasses(): Promise<ClassWithDetails[]> {
-  'use server';
-  return prisma.class.findMany({
-    include: {
-      instructor: { select: { fullName: true } },
-      _count: { select: { checkIns: true } },
-      checkIns: {
-        include: { customer: { select: { fullName: true, email: true } } },
-      },
-    },
-    orderBy: { startTime: 'asc' },
-  });
-}
-
-async function createClass(formData: FormData) {
-  'use server';
-  const name = formData.get('name') as string;
-  const startTime = new Date(formData.get('startTime') as string);
-  const endTime = new Date(formData.get('endTime') as string);
-  const instructorId = formData.get('instructorId') as string | null;
-  const capacity = parseInt(formData.get('capacity') as string) || 12;
-  const description = formData.get('description') as string | null;
-  const repeatWeekly = formData.get('repeatWeekly') === 'on';
-  const repeatWeeks = parseInt(formData.get('repeatWeeks') as string) || 1;
-
-  const classesToCreate = [];
-  let currentStart = new Date(startTime);
-
-  for (let i = 0; i < (repeatWeekly ? repeatWeeks : 1); i++) {
-    classesToCreate.push({
-      name,
-      startTime: new Date(currentStart),
-      endTime: new Date(currentStart.getTime() + (endTime.getTime() - startTime.getTime())),
-      instructorId: instructorId || undefined,
-      capacity,
-      description,
-    });
-    currentStart.setDate(currentStart.getDate() + 7);
-  }
-
-  await prisma.class.createMany({ data: classesToCreate });
-  revalidatePath('/dashboard/classes');
-}
-
-async function deleteClass(id: string) {
-  'use server';
-  await prisma.class.delete({ where: { id } });
-  revalidatePath('/dashboard/classes');
-}
-
-async function checkInToClass(classId: string, customerId: string) {
-  'use server';
-  await prisma.classCheckIn.create({
-    data: { classId, customerId },
-  });
-  revalidatePath('/dashboard/classes');
-}
-
-async function checkOutFromClass(checkInId: string) {
-  'use server';
-  await prisma.classCheckIn.delete({ where: { id: checkInId } });
-  revalidatePath('/dashboard/classes');
-}
+import {
+  getClasses,
+  createClass,
+  deleteClass,
+  checkInToClass,
+  checkOutFromClass,
+  searchCustomers,
+  type ClassWithDetails,
+} from './actions';
 
 export default function Classes() {
   const [classes, setClasses] = useState<ClassWithDetails[]>([]);
@@ -127,16 +55,8 @@ export default function Classes() {
     }
   };
 
-  const searchCustomers = async () => {
-    const data = await prisma.customer.findMany({
-      where: {
-        OR: [
-          { fullName: { contains: searchTerm, mode: 'insensitive' } },
-          { email: { contains: searchTerm, mode: 'insensitive' } },
-        ],
-      },
-      take: 10,
-    });
+  const handleSearch = async () => {
+    const data = await searchCustomers(searchTerm);
     setCustomers(data);
   };
 
@@ -199,7 +119,6 @@ export default function Classes() {
               </div>
             </div>
 
-            {/* Checked-in customers + Check Out */}
             {cls.checkIns.length > 0 && (
               <div className="mt-8">
                 <div className="text-sm uppercase tracking-widest text-zinc-500 mb-3">Currently Checked In</div>
@@ -280,7 +199,7 @@ export default function Classes() {
                 placeholder="Search customer name or email"
                 className="flex-1 bg-zinc-800 px-4 py-3 rounded-2xl"
               />
-              <button onClick={searchCustomers} className="bg-blue-600 px-6 rounded-2xl">Search</button>
+              <button onClick={handleSearch} className="bg-blue-600 px-6 rounded-2xl">Search</button>
             </div>
 
             <div className="max-h-80 overflow-auto space-y-2">
