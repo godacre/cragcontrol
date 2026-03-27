@@ -38,7 +38,8 @@ export default function Customers() {
       emergencyContact: '',
       notes: '',
       waiver: false,
-      membership: 'Day Pass'
+      membership: 'Day Pass',
+      visits: []
     };
     saveCustomers([...customers, newCustomer]);
     setSelected(newCustomer);
@@ -58,6 +59,30 @@ export default function Customers() {
     }
   };
 
+  // Calculate monthly and yearly visits for selected customer
+  const getVisitStats = (customer: any) => {
+    if (!customer || !customer.visits) return { monthly: 0, yearly: 0 };
+
+    const now = new Date();
+    const thisMonth = now.getMonth();
+    const thisYear = now.getFullYear();
+
+    let monthly = 0;
+    let yearly = 0;
+
+    customer.visits.forEach((visitStr: string) => {
+      const visitDate = new Date(visitStr);
+      if (visitDate.getFullYear() === thisYear) {
+        yearly++;
+        if (visitDate.getMonth() === thisMonth) monthly++;
+      }
+    });
+
+    return { monthly, yearly };
+  };
+
+  const stats = selected ? getVisitStats(selected) : { monthly: 0, yearly: 0 };
+
   return (
     <div>
       <h1 className="text-4xl font-bold mb-8">👤 Customers &amp; CRM {isAdmin && '(Admin Mode)'}</h1>
@@ -73,7 +98,6 @@ export default function Customers() {
       </div>
 
       <div className="grid grid-cols-2 gap-8">
-        {/* Customer List */}
         <div className="bg-zinc-900 p-6 rounded-3xl max-h-[650px] overflow-auto">
           {filtered.map(c => (
             <button 
@@ -97,14 +121,9 @@ export default function Customers() {
           ))}
         </div>
 
-        {/* Edit Form */}
         {selected && (
           <div className="bg-zinc-900 p-8 rounded-3xl">
-            <input 
-              value={selected.name} 
-              onChange={e => setSelected({...selected, name: e.target.value})} 
-              className="text-3xl font-bold bg-transparent border-b w-full mb-6"
-            />
+            <input value={selected.name} onChange={e => setSelected({...selected, name: e.target.value})} className="text-3xl font-bold bg-transparent border-b w-full mb-6" />
             <input value={selected.email} onChange={e => setSelected({...selected, email: e.target.value})} className="bg-zinc-800 px-6 py-4 rounded-2xl w-full mb-4" placeholder="Email" />
             <input value={selected.phone} onChange={e => setSelected({...selected, phone: e.target.value})} className="bg-zinc-800 px-6 py-4 rounded-2xl w-full mb-4" placeholder="Phone" />
             <input value={selected.dob} onChange={e => setSelected({...selected, dob: e.target.value})} className="bg-zinc-800 px-6 py-4 rounded-2xl w-full mb-4" placeholder="Date of Birth" />
@@ -128,6 +147,21 @@ export default function Customers() {
                 />
                 <div className="w-14 h-8 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-green-500"></div>
               </label>
+            </div>
+
+            {/* Visit Statistics */}
+            <div className="bg-zinc-800 p-6 rounded-3xl mb-6">
+              <h3 className="text-lg font-medium mb-4">Visit History</h3>
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <div className="text-sm text-zinc-400">This Month</div>
+                  <div className="text-5xl font-bold text-green-400">{stats.monthly}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-zinc-400">This Year</div>
+                  <div className="text-5xl font-bold text-green-400">{stats.yearly}</div>
+                </div>
+              </div>
             </div>
 
             <textarea value={selected.notes} onChange={e => setSelected({...selected, notes: e.target.value})} placeholder="Notes / Legal information" className="w-full h-32 bg-zinc-800 p-6 rounded-3xl" />
