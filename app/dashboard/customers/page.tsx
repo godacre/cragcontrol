@@ -7,7 +7,6 @@ export default function Customers() {
   const [selected, setSelected] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  // Load customers safely
   useEffect(() => {
     try {
       const saved = localStorage.getItem('cragcontrol_customers');
@@ -67,7 +66,7 @@ export default function Customers() {
         <input 
           value={search} 
           onChange={e => setSearch(e.target.value)} 
-          placeholder="Search members (try typing matt...)" 
+          placeholder="Search members..." 
           className="flex-1 bg-zinc-900 border border-zinc-700 rounded-3xl px-8 py-6 text-2xl"
         />
         {isAdmin && <button onClick={addCustomer} className="bg-green-500 px-10 py-6 rounded-3xl text-xl">+ Add Member</button>}
@@ -88,10 +87,12 @@ export default function Customers() {
                 </span>
                 <div>
                   <div className="font-medium">{c.name}</div>
-                  <div className="text-sm text-zinc-400">{c.email} • {c.phone}</div>
+                  <div className="text-sm text-zinc-400">{c.email}</div>
                 </div>
               </div>
-              <div className={`px-4 py-1 rounded-full text-sm ${c.waiver ? 'bg-green-500' : 'bg-red-500'}`}>Waiver</div>
+              <div className={`px-4 py-1 rounded-full text-sm ${c.waiver ? 'bg-green-500' : 'bg-red-500'}`}>
+                {c.waiver ? 'Waiver Signed' : 'No Waiver'}
+              </div>
             </button>
           ))}
         </div>
@@ -104,47 +105,32 @@ export default function Customers() {
               onChange={e => setSelected({...selected, name: e.target.value})} 
               className="text-3xl font-bold bg-transparent border-b w-full mb-6"
             />
-            <input 
-              value={selected.email} 
-              onChange={e => setSelected({...selected, email: e.target.value})} 
-              className="bg-zinc-800 px-6 py-4 rounded-2xl w-full mb-4" 
-              placeholder="Email"
-            />
-            <input 
-              value={selected.phone} 
-              onChange={e => setSelected({...selected, phone: e.target.value})} 
-              className="bg-zinc-800 px-6 py-4 rounded-2xl w-full mb-4" 
-              placeholder="Phone"
-            />
-            <input 
-              value={selected.dob} 
-              onChange={e => setSelected({...selected, dob: e.target.value})} 
-              className="bg-zinc-800 px-6 py-4 rounded-2xl w-full mb-4" 
-              placeholder="Date of Birth"
-            />
-            <input 
-              value={selected.emergencyContact} 
-              onChange={e => setSelected({...selected, emergencyContact: e.target.value})} 
-              className="bg-zinc-800 px-6 py-4 rounded-2xl w-full mb-6" 
-              placeholder="Emergency Contact"
-            />
+            <input value={selected.email} onChange={e => setSelected({...selected, email: e.target.value})} className="bg-zinc-800 px-6 py-4 rounded-2xl w-full mb-4" placeholder="Email" />
+            <input value={selected.phone} onChange={e => setSelected({...selected, phone: e.target.value})} className="bg-zinc-800 px-6 py-4 rounded-2xl w-full mb-4" placeholder="Phone" />
+            <input value={selected.dob} onChange={e => setSelected({...selected, dob: e.target.value})} className="bg-zinc-800 px-6 py-4 rounded-2xl w-full mb-4" placeholder="Date of Birth" />
+            <input value={selected.emergencyContact} onChange={e => setSelected({...selected, emergencyContact: e.target.value})} className="bg-zinc-800 px-6 py-4 rounded-2xl w-full mb-6" placeholder="Emergency Contact" />
 
-            <select 
-              value={selected.membership} 
-              onChange={e => setSelected({...selected, membership: e.target.value})} 
-              className="bg-zinc-800 px-6 py-4 rounded-2xl w-full mb-6"
-            >
+            <select value={selected.membership} onChange={e => setSelected({...selected, membership: e.target.value})} className="bg-zinc-800 px-6 py-4 rounded-2xl w-full mb-6">
               <option value="Day Pass">Day Pass</option>
               <option value="Monthly">Monthly</option>
               <option value="Annual">Annual</option>
             </select>
 
-            <textarea 
-              value={selected.notes} 
-              onChange={e => setSelected({...selected, notes: e.target.value})} 
-              placeholder="Notes / Legal information"
-              className="w-full h-32 bg-zinc-800 p-6 rounded-3xl"
-            />
+            {/* Waiver Toggle */}
+            <div className="flex items-center justify-between bg-zinc-800 px-6 py-5 rounded-3xl mb-6">
+              <span className="text-lg">Waiver Signed</span>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input 
+                  type="checkbox" 
+                  checked={selected.waiver} 
+                  onChange={e => setSelected({...selected, waiver: e.target.checked})} 
+                  className="sr-only peer"
+                />
+                <div className="w-14 h-8 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-green-500"></div>
+              </label>
+            </div>
+
+            <textarea value={selected.notes} onChange={e => setSelected({...selected, notes: e.target.value})} placeholder="Notes / Legal information" className="w-full h-32 bg-zinc-800 p-6 rounded-3xl" />
 
             {isAdmin && <button onClick={() => deleteCustomer(selected.id)} className="text-red-400 mt-8">🗑️ Delete Member</button>}
             <button onClick={saveCustomer} className="mt-6 w-full bg-green-500 py-6 rounded-3xl text-xl">Save All Changes</button>
