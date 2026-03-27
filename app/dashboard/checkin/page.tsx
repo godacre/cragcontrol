@@ -1,60 +1,95 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { prisma } from '../../../lib/prisma';
 
-export default function CheckInPage() {
+export default function CheckIn() {
   const [customers, setCustomers] = useState<any[]>([]);
   const [search, setSearch] = useState('');
-  const [employeeId] = useState(localStorage.getItem('cragcontrol_employeeId'));
+  const [result, setResult] = useState<any>(null);
 
+  // Load real customers from localStorage
   useEffect(() => {
-    fetch('/api/customers')
-      .then(res => res.json())
-      .then(setCustomers);
+    try {
+      const saved = localStorage.getItem('cragcontrol_customers');
+      setCustomers(saved ? JSON.parse(saved) : []);
+    } catch (e) {
+      setCustomers([]);
+    }
   }, []);
 
-  const filtered = customers.filter(c => 
-    c.fullName.toLowerCase().includes(search.toLowerCase())
+  const filteredCustomers = customers.filter(c =>
+    c.name.toLowerCase().includes(search.toLowerCase())
   );
 
-  const handleCheckIn = async (customerId: string) => {
-    await fetch('/api/checkin', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ customerId, employeeId }),
+  const checkInMember = (customer: any) => {
+    const isGood = customer.waiver === true && 
+                  (customer.membership === 'Monthly' || customer.membership === 'Annual');
+
+    setResult({
+      ...customer,
+      status: isGood ? 'success' : 'blocked',
+      message: isGood ? '✅ GOOD TO GO' : '❌ STOP - Missing Waiver or Expired Membership'
     });
-    alert('Guest checked in successfully!');
-    // refresh list
-    window.location.reload();
+
+    // Play sound
+    if (isGood) {
+      new Audio('https://www.soundjay.com/buttons/beep-07.mp3').play();
+    } else {
+      new Audio('https://www.soundjay.com/buttons/beep-08b.mp3').play();
+    }
   };
 
   return (
-    <div className="p-8">
-      <h1 className="text-4xl mb-8">Check-In Desk</h1>
-      
+    <div>
+      <h1 className="text-4xl font-bold mb-8">🧗 Front Desk Check-In</h1>
+
       <input
         type="text"
-        placeholder="Search customers..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="w-full bg-zinc-800 border border-zinc-700 rounded-3xl px-8 py-6 text-2xl mb-8"
+        placeholder="Search member by name or type barcode..."
+        className="w-full bg-zinc-900 border border-zinc-700 rounded-3xl px-8 py-6 text-2xl mb-8 focus:border-green-500 outline-none"
+        autoFocus
       />
 
-      <div className="space-y-4">
-        {filtered.map((customer) => (
-          <div key={customer.id} className="bg-zinc-900 p-6 rounded-3xl flex justify-between items-center">
-            <div>
-              <p className="text-2xl">{customer.fullName}</p>
-              <p className="text-zinc-400">{customer.email || customer.phone}</p>
-            </div>
+      <div className="grid grid-cols-2 gap-8">
+        {/* Search Results */}
+        <div className="bg-zinc-900 p-6 rounded-3xl max-h-[600px] overflow-auto">
+          <h2 className="text-xl mb-4">Matching Members</h2>
+          {filteredCustomers.length === 0 && search && (
+            <p className="text-zinc-400 py-8 text-center">No members found</p>
+          )}
+          {filteredCustomers.map(c => (
             <button
-              onClick={() => handleCheckIn(customer.id)}
-              className="bg-green-500 px-12 py-6 rounded-3xl text-xl"
+              key={c.id}
+              onClick={() => checkInMember(c)}
+              className="w-full text-left p-5 hover:bg-zinc-800 rounded-2xl mb-3 flex justify-between items-center"
             >
-              Check In
+              <div className="flex items-center gap-3">
+                <span className="text-3xl">
+                  {c.membership === 'Monthly' ? '🔑' : c.membership === 'Annual' ? '🏆' : '🎟️'}
+                </span>
+                <div>
+                  <div className="font-medium">{c.name}</div>
+                  <div className="text-sm text-zinc-400">{c.email}</div>
+                </div>
+              </div>
+              <div className={`px-4 py-1 rounded-full text-sm ${c.waiver ? 'bg-green-500' : 'bg-red-500'}`}>
+                {c.waiver ? 'Waiver OK' : 'No Waiver'}
+              </div>
             </button>
+          ))}
+        </div>
+
+        {/* Check-In Result */}
+        {result && (
+          <div className={`p-12 rounded-3xl text-center text-5xl font-bold transition-all ${
+            result.status === 'success' ? 'bg-green-500' : 'bg-red-600'
+          }`}>
+            {result.message}
+            <p className="text-3xl mt-8">{result.name}</p>
+            <p className="text-2xl mt-3">Membership: {result.membership}</p>
           </div>
-        ))}
+        )}
       </div>
     </div>
   );
