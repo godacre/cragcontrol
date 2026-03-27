@@ -2,40 +2,71 @@
 import { useState, useEffect } from 'react';
 
 export default function Staff() {
-  const [staff, setStaff] = useState([
-    { id: 1, name: 'Sarah Chen', email: 'sarah@cragcontrol.com', role: 'admin' },
-    { id: 2, name: 'Mike Torres', email: 'mike@cragcontrol.com', role: 'staff' },
-  ]);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [newStaff, setNewStaff] = useState({ name: '', email: '', role: 'staff' });
+  const [staff, setStaff] = useState<any[]>([]);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  const [newStaffName, setNewStaffName] = useState('');
+  const [newStaffEmail, setNewStaffEmail] = useState('');
 
   useEffect(() => {
+    const saved = JSON.parse(localStorage.getItem('cragcontrol_staff') || '[]');
+    setStaff(saved);
     const role = localStorage.getItem('cragcontrol_role');
-    setIsAdmin(role === 'admin');
+    setIsSuperAdmin(role === 'superadmin');
   }, []);
 
+  const saveStaff = (newStaffList: any[]) => {
+    setStaff(newStaffList);
+    localStorage.setItem('cragcontrol_staff', JSON.stringify(newStaffList));
+  };
+
   const addEmployee = () => {
-    if (newStaff.name) {
-      setStaff([...staff, { id: Date.now(), ...newStaff }]);
-      setNewStaff({ name: '', email: '', role: 'staff' });
-    }
+    if (!newStaffName) return;
+    const newEmployee = {
+      id: Date.now(),
+      name: newStaffName,
+      email: newStaffEmail || '',
+      role: 'staff'
+    };
+    saveStaff([...staff, newEmployee]);
+    setNewStaffName('');
+    setNewStaffEmail('');
   };
 
   const changeRole = (id: number, newRole: string) => {
-    setStaff(staff.map(s => s.id === id ? { ...s, role: newRole } : s));
+    // Super admin cannot be demoted
+    const updated = staff.map(s => 
+      s.id === id ? { ...s, role: newRole } : s
+    );
+    saveStaff(updated);
+  };
+
+  const deleteEmployee = (id: number) => {
+    if (confirm('Delete this employee?')) {
+      saveStaff(staff.filter(s => s.id !== id));
+    }
   };
 
   return (
     <div>
-      <h1 className="text-4xl font-bold mb-8">👥 Staff & Employees {isAdmin && '(Admin Only)'}</h1>
+      <h1 className="text-4xl font-bold mb-8">👥 Staff &amp; Employees</h1>
       
-      {isAdmin && (
+      {isSuperAdmin && (
         <div className="bg-zinc-900 p-8 rounded-3xl mb-12">
           <h2 className="text-2xl mb-6">Add New Employee</h2>
-          <div className="grid grid-cols-3 gap-4">
-            <input value={newStaff.name} onChange={e => setNewStaff({...newStaff, name: e.target.value})} placeholder="Full Name" className="bg-zinc-800 px-6 py-4 rounded-3xl" />
-            <input value={newStaff.email} onChange={e => setNewStaff({...newStaff, email: e.target.value})} placeholder="Email" className="bg-zinc-800 px-6 py-4 rounded-3xl" />
-            <button onClick={addEmployee} className="bg-green-500 text-white py-4 rounded-3xl">Add Employee</button>
+          <div className="flex gap-4">
+            <input 
+              value={newStaffName} 
+              onChange={e => setNewStaffName(e.target.value)} 
+              placeholder="Full Name" 
+              className="flex-1 bg-zinc-800 px-6 py-4 rounded-3xl"
+            />
+            <input 
+              value={newStaffEmail} 
+              onChange={e => setNewStaffEmail(e.target.value)} 
+              placeholder="Email (optional)" 
+              className="flex-1 bg-zinc-800 px-6 py-4 rounded-3xl"
+            />
+            <button onClick={addEmployee} className="bg-green-500 px-10 py-4 rounded-3xl">Add</button>
           </div>
         </div>
       )}
@@ -48,15 +79,20 @@ export default function Staff() {
               <div className="font-medium">{s.name}</div>
               <div className="text-sm text-zinc-400">{s.email}</div>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-6">
               <select 
                 value={s.role}
                 onChange={e => changeRole(s.id, e.target.value)}
                 className="bg-zinc-800 px-6 py-3 rounded-3xl"
+                disabled={s.role === 'superadmin'}
               >
                 <option value="staff">Staff</option>
                 <option value="admin">Admin</option>
+                <option value="superadmin" disabled>Super Admin</option>
               </select>
+              {isSuperAdmin && s.role !== 'superadmin' && (
+                <button onClick={() => deleteEmployee(s.id)} className="text-red-400">Delete</button>
+              )}
             </div>
           </div>
         ))}
