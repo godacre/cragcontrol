@@ -8,8 +8,12 @@ export default function Staff() {
   const [newStaffEmail, setNewStaffEmail] = useState('');
 
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem('cragcontrol_staff') || '[]');
-    setStaff(saved);
+    try {
+      const saved = localStorage.getItem('cragcontrol_staff');
+      setStaff(saved ? JSON.parse(saved) : []);
+    } catch (e) {
+      setStaff([]);
+    }
     const role = localStorage.getItem('cragcontrol_role');
     setIsSuperAdmin(role === 'superadmin');
   }, []);
@@ -33,15 +37,14 @@ export default function Staff() {
   };
 
   const changeRole = (id: number, newRole: string) => {
-    // Super admin cannot be demoted
-    const updated = staff.map(s => 
-      s.id === id ? { ...s, role: newRole } : s
-    );
+    // Super admin cannot be changed
+    if (staff.find(s => s.id === id && s.role === 'superadmin')) return;
+    const updated = staff.map(s => s.id === id ? { ...s, role: newRole } : s);
     saveStaff(updated);
   };
 
   const deleteEmployee = (id: number) => {
-    if (confirm('Delete this employee?')) {
+    if (confirm('Delete this employee permanently?')) {
       saveStaff(staff.filter(s => s.id !== id));
     }
   };
@@ -66,7 +69,7 @@ export default function Staff() {
               placeholder="Email (optional)" 
               className="flex-1 bg-zinc-800 px-6 py-4 rounded-3xl"
             />
-            <button onClick={addEmployee} className="bg-green-500 px-10 py-4 rounded-3xl">Add</button>
+            <button onClick={addEmployee} className="bg-green-500 px-10 py-4 rounded-3xl">Add Employee</button>
           </div>
         </div>
       )}
