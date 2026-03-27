@@ -7,10 +7,15 @@ export default function Customers() {
   const [selected, setSelected] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  // Load customers from localStorage
+  // Load customers safely
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem('cragcontrol_customers') || '[]');
-    setCustomers(saved);
+    try {
+      const saved = localStorage.getItem('cragcontrol_customers');
+      setCustomers(saved ? JSON.parse(saved) : []);
+    } catch (e) {
+      setCustomers([]);
+    }
+
     const role = localStorage.getItem('cragcontrol_role');
     setIsAdmin(role === 'superadmin' || role === 'admin');
   }, []);
@@ -56,20 +61,20 @@ export default function Customers() {
 
   return (
     <div>
-      <h1 className="text-4xl font-bold mb-8">👤 Customers &amp; CRM</h1>
+      <h1 className="text-4xl font-bold mb-8">👤 Customers &amp; CRM {isAdmin && '(Admin Mode)'}</h1>
       
       <div className="flex gap-4 mb-8">
         <input 
           value={search} 
           onChange={e => setSearch(e.target.value)} 
-          placeholder="Search members..." 
+          placeholder="Search members (try typing matt...)" 
           className="flex-1 bg-zinc-900 border border-zinc-700 rounded-3xl px-8 py-6 text-2xl"
         />
         {isAdmin && <button onClick={addCustomer} className="bg-green-500 px-10 py-6 rounded-3xl text-xl">+ Add Member</button>}
       </div>
 
       <div className="grid grid-cols-2 gap-8">
-        {/* List */}
+        {/* Customer List */}
         <div className="bg-zinc-900 p-6 rounded-3xl max-h-[650px] overflow-auto">
           {filtered.map(c => (
             <button 
@@ -77,9 +82,14 @@ export default function Customers() {
               onClick={() => setSelected(c)} 
               className="w-full text-left p-5 hover:bg-zinc-800 rounded-2xl mb-3 flex justify-between items-center"
             >
-              <div>
-                <div className="font-medium">{c.name}</div>
-                <div className="text-sm text-zinc-400">{c.email}</div>
+              <div className="flex items-center gap-3">
+                <span className="text-3xl">
+                  {c.membership === 'Monthly' ? '🔑' : c.membership === 'Annual' ? '🏆' : '🎟️'}
+                </span>
+                <div>
+                  <div className="font-medium">{c.name}</div>
+                  <div className="text-sm text-zinc-400">{c.email} • {c.phone}</div>
+                </div>
               </div>
               <div className={`px-4 py-1 rounded-full text-sm ${c.waiver ? 'bg-green-500' : 'bg-red-500'}`}>Waiver</div>
             </button>
@@ -97,25 +107,25 @@ export default function Customers() {
             <input 
               value={selected.email} 
               onChange={e => setSelected({...selected, email: e.target.value})} 
-              className="bg-zinc-800 px-6 py-4 rounded-2xl w-full mb-4"
+              className="bg-zinc-800 px-6 py-4 rounded-2xl w-full mb-4" 
               placeholder="Email"
             />
             <input 
               value={selected.phone} 
               onChange={e => setSelected({...selected, phone: e.target.value})} 
-              className="bg-zinc-800 px-6 py-4 rounded-2xl w-full mb-4"
+              className="bg-zinc-800 px-6 py-4 rounded-2xl w-full mb-4" 
               placeholder="Phone"
             />
             <input 
               value={selected.dob} 
               onChange={e => setSelected({...selected, dob: e.target.value})} 
-              className="bg-zinc-800 px-6 py-4 rounded-2xl w-full mb-4"
+              className="bg-zinc-800 px-6 py-4 rounded-2xl w-full mb-4" 
               placeholder="Date of Birth"
             />
             <input 
               value={selected.emergencyContact} 
               onChange={e => setSelected({...selected, emergencyContact: e.target.value})} 
-              className="bg-zinc-800 px-6 py-4 rounded-2xl w-full mb-6"
+              className="bg-zinc-800 px-6 py-4 rounded-2xl w-full mb-6" 
               placeholder="Emergency Contact"
             />
 
@@ -124,9 +134,9 @@ export default function Customers() {
               onChange={e => setSelected({...selected, membership: e.target.value})} 
               className="bg-zinc-800 px-6 py-4 rounded-2xl w-full mb-6"
             >
-              <option>Day Pass</option>
-              <option>Monthly</option>
-              <option>Annual</option>
+              <option value="Day Pass">Day Pass</option>
+              <option value="Monthly">Monthly</option>
+              <option value="Annual">Annual</option>
             </select>
 
             <textarea 
@@ -137,7 +147,7 @@ export default function Customers() {
             />
 
             {isAdmin && <button onClick={() => deleteCustomer(selected.id)} className="text-red-400 mt-8">🗑️ Delete Member</button>}
-            <button onClick={saveCustomer} className="mt-6 w-full bg-green-500 py-6 rounded-3xl text-xl">Save Changes</button>
+            <button onClick={saveCustomer} className="mt-6 w-full bg-green-500 py-6 rounded-3xl text-xl">Save All Changes</button>
           </div>
         )}
       </div>
