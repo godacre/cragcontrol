@@ -5,7 +5,9 @@ export default function Staff() {
   const [staff, setStaff] = useState<any[]>([]);
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [newName, setNewName] = useState('');
-  const [newEmail, setNewEmail] = useState('');
+  const [newUsername, setNewUsername] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [newRole, setNewRole] = useState('staff');
 
   useEffect(() => {
     const users = JSON.parse(localStorage.getItem('cragcontrol_users') || '[]');
@@ -20,18 +22,25 @@ export default function Staff() {
   };
 
   const addNewStaff = () => {
-    if (!newName) return alert('Please enter a name');
+    if (!newName || !newUsername || !newPassword) {
+      alert('Please fill in Name, Username, and Password');
+      return;
+    }
+
     const newUser = {
       id: Date.now(),
       name: newName,
-      email: newEmail || '',
-      password: 'temp123',
-      role: 'admin'
+      username: newUsername,
+      password: newPassword,
+      role: newRole
     };
+
     saveUsers([...staff, newUser]);
     setNewName('');
-    setNewEmail('');
-    alert(`✅ New Admin/Staff created!\nName: ${newName}\nDefault password: temp123`);
+    setNewUsername('');
+    setNewPassword('');
+
+    alert(`✅ New ${newRole} account created!\nUsername: ${newUsername}\nPassword: ${newPassword}`);
   };
 
   const changeRole = (id: number, newRole: string) => {
@@ -62,21 +71,26 @@ export default function Staff() {
       {isSuperAdmin && (
         <div className="bg-zinc-900 p-8 rounded-3xl mb-12">
           <h2 className="text-2xl mb-6">Add New Staff / Admin</h2>
-          <div className="flex gap-4">
-            <input value={newName} onChange={e => setNewName(e.target.value)} placeholder="Full Name" className="flex-1 bg-zinc-800 px-6 py-4 rounded-3xl" />
-            <input value={newEmail} onChange={e => setNewEmail(e.target.value)} placeholder="Email (optional)" className="flex-1 bg-zinc-800 px-6 py-4 rounded-3xl" />
-            <button onClick={addNewStaff} className="bg-green-500 px-10 py-4 rounded-3xl">Add User</button>
+          <div className="grid grid-cols-2 gap-4">
+            <input value={newName} onChange={e => setNewName(e.target.value)} placeholder="Full Name" className="bg-zinc-800 px-6 py-4 rounded-3xl" />
+            <input value={newUsername} onChange={e => setNewUsername(e.target.value)} placeholder="Username (for login)" className="bg-zinc-800 px-6 py-4 rounded-3xl" />
+            <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="Password" className="bg-zinc-800 px-6 py-4 rounded-3xl" />
+            <select value={newRole} onChange={e => setNewRole(e.target.value)} className="bg-zinc-800 px-6 py-4 rounded-3xl">
+              <option value="staff">Staff</option>
+              <option value="admin">Admin</option>
+            </select>
           </div>
+          <button onClick={addNewStaff} className="mt-6 bg-green-500 px-10 py-4 rounded-3xl text-xl w-full">Create New User</button>
         </div>
       )}
 
       <div className="bg-zinc-900 p-8 rounded-3xl">
-        <h2 className="text-2xl mb-6">All Staff Members</h2>
+        <h2 className="text-2xl mb-6">All Users</h2>
         {staff.map(u => (
           <div key={u.id} className="flex justify-between items-center border-b border-zinc-700 py-6">
             <div>
               <div className="font-medium">{u.name}</div>
-              <div className="text-sm text-zinc-400">{u.email || 'No email'}</div>
+              <div className="text-sm text-zinc-400">Username: {u.username}</div>
             </div>
             <div className="flex items-center gap-6">
               <select 
