@@ -1,16 +1,19 @@
 'use client';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     if (localStorage.getItem('cragcontrol_loggedIn') !== 'true') {
       router.push('/login');
     }
+    const role = localStorage.getItem('cragcontrol_role');
+    setIsAdmin(role === 'superadmin' || role === 'admin');
   }, []);
 
   const logout = () => {
@@ -29,12 +32,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <nav className="flex-1 space-y-1">
           <Link href="/dashboard/checkin" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-lg ${pathname === '/dashboard/checkin' ? 'bg-green-500' : 'hover:bg-zinc-800'}`}>🧗 Check-In</Link>
           <Link href="/dashboard/pos" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-lg ${pathname === '/dashboard/pos' ? 'bg-green-500' : 'hover:bg-zinc-800'}`}>💰 Point of Sale</Link>
-          <Link href="/dashboard/customers" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-lg ${pathname === '/dashboard/customers' ? 'bg-green-500' : 'hover:bg-zinc-800'}`}>👤 Customers &amp; CRM</Link>
-          <Link href="/dashboard/rentals" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-lg ${pathname === '/dashboard/rentals' ? 'bg-green-500' : 'hover:bg-zinc-800'}`}>📦 Rentals &amp; Inventory</Link>
+          <Link href="/dashboard/customers" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-lg ${pathname === '/dashboard/customers' ? 'bg-green-500' : 'hover:bg-zinc-800'}`}>👤 Customers & CRM</Link>
+          <Link href="/dashboard/rentals" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-lg ${pathname === '/dashboard/rentals' ? 'bg-green-500' : 'hover:bg-zinc-800'}`}>📦 Rentals & Inventory</Link>
           <Link href="/dashboard/classes" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-lg ${pathname === '/dashboard/classes' ? 'bg-green-500' : 'hover:bg-zinc-800'}`}>📅 Classes</Link>
           <Link href="/dashboard/routes" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-lg ${pathname === '/dashboard/routes' ? 'bg-green-500' : 'hover:bg-zinc-800'}`}>🪨 Route Setting</Link>
           <Link href="/dashboard/reports" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-lg ${pathname === '/dashboard/reports' ? 'bg-green-500' : 'hover:bg-zinc-800'}`}>📊 Reports</Link>
-          <Link href="/dashboard/staff" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-lg ${pathname === '/dashboard/staff' ? 'bg-green-500' : 'hover:bg-zinc-800'}`}>👥 Staff &amp; Employees</Link>
+
+          {/* Staff Management - ONLY visible to Admins */}
+          {isAdmin && (
+            <Link href="/dashboard/staff" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-lg ${pathname === '/dashboard/staff' ? 'bg-green-500' : 'hover:bg-zinc-800'}`}>👥 Staff Management</Link>
+          )}
         </nav>
         <button onClick={logout} className="mt-auto text-red-400 hover:text-red-300 py-3">Logout</button>
       </div>
