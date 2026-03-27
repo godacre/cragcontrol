@@ -55,8 +55,18 @@ model Membership {
   status              MembershipStatus @default(ACTIVE)
 }
 
-enum MembershipTier { DAY_PASS PUNCH_CARD MONTHLY ANNUAL }
-enum MembershipStatus { ACTIVE EXPIRED CANCELLED }
+enum MembershipTier {
+  DAY_PASS
+  PUNCH_CARD
+  MONTHLY
+  ANNUAL
+}
+
+enum MembershipStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
 
 model CheckIn {
   id          String   @id @default(cuid())
@@ -69,7 +79,10 @@ model CheckIn {
   blockReason String?
 }
 
-enum CheckInStatus { SUCCESS BLOCKED }
+enum CheckInStatus {
+  SUCCESS
+  BLOCKED
+}
 
 model Certification {
   id          String   @id @default(cuid())
@@ -78,7 +91,11 @@ model Certification {
   type        CertType
 }
 
-enum CertType { TOP_ROPE LEAD AUTOBELAY }
+enum CertType {
+  TOP_ROPE
+  LEAD
+  AUTOBELAY
+}
 
 model Rental {
   id            String   @id @default(cuid())
