@@ -1,3 +1,30 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Customer {
+  id          String         @id @default(cuid())
+  fullName    String
+  email       String?        @unique
+  phone       String?
+  createdAt   DateTime       @default(now())
+  checkIns    ClassCheckIn[]
+}
+
+model Employee {
+  id          String         @id @default(cuid())
+  fullName    String
+  email       String         @unique
+  role        String         // "admin", "staff", "superadmin"
+  createdAt   DateTime       @default(now())
+  classes     Class[]
+}
+
 model Class {
   id          String         @id @default(cuid())
   name        String
@@ -5,7 +32,16 @@ model Class {
   endTime     DateTime
   instructorId String?
   instructor  Employee?      @relation(fields: [instructorId], references: [id])
-  capacity    Int            @default(12)   // ← NEW
-  description String?        // ← NEW
+  capacity    Int            @default(12)
+  description String?
   checkIns    ClassCheckIn[]
+}
+
+model ClassCheckIn {
+  id        String   @id @default(cuid())
+  classId   String
+  customerId String
+  createdAt DateTime @default(now())
+  class     Class    @relation(fields: [classId], references: [id])
+  customer  Customer @relation(fields: [customerId], references: [id])
 }
