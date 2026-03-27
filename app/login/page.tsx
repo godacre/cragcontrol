@@ -9,14 +9,16 @@ export default function Login() {
   const [adminPassword, setAdminPassword] = useState('');
   const router = useRouter();
 
-  // Check if first-time setup is needed
+  // Check if super admin has already been created
   useEffect(() => {
-    const superAdminCreated = localStorage.getItem('cragcontrol_superAdminCreated');
-    setSetupMode(!superAdminCreated);
+    const isSetupDone = localStorage.getItem('cragcontrol_superAdminCreated');
+    setSetupMode(!isSetupDone);
   }, []);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') handleLogin();
+    if (e.key === 'Enter') {
+      handleLogin();
+    }
   };
 
   const handleLogin = () => {
@@ -36,6 +38,7 @@ export default function Login() {
       return;
     }
 
+    // Create permanent super admin
     localStorage.setItem('cragcontrol_superAdminCreated', 'true');
     localStorage.setItem('cragcontrol_superAdminName', adminName);
     localStorage.setItem('cragcontrol_superAdminPassword', adminPassword);
