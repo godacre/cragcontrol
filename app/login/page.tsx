@@ -11,10 +11,8 @@ export default function Login() {
 
   // Check if first-time setup is needed
   useEffect(() => {
-    const superAdminExists = localStorage.getItem('cragcontrol_superAdminCreated');
-    if (!superAdminExists) {
-      setSetupMode(true);
-    }
+    const superAdminCreated = localStorage.getItem('cragcontrol_superAdminCreated');
+    setSetupMode(!superAdminCreated);
   }, []);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -24,9 +22,8 @@ export default function Login() {
   };
 
   const handleLogin = () => {
-    const savedSuperPassword = localStorage.getItem('cragcontrol_superAdminPassword');
-    
-    if (password === savedSuperPassword) {
+    const savedPassword = localStorage.getItem('cragcontrol_superAdminPassword');
+    if (password === savedPassword) {
       localStorage.setItem('cragcontrol_role', 'superadmin');
       localStorage.setItem('cragcontrol_loggedIn', 'true');
       router.push('/dashboard/checkin');
@@ -49,6 +46,8 @@ export default function Login() {
     localStorage.setItem('cragcontrol_loggedIn', 'true');
 
     alert(`✅ Welcome, ${adminName}! You are now the permanent Super Admin.`);
+
+    // Force redirect
     router.push('/dashboard/checkin');
   };
 
@@ -59,8 +58,11 @@ export default function Login() {
         <div className="bg-zinc-900 p-10 rounded-3xl max-w-md w-full text-center">
           <h1 className="text-5xl mb-8">🏔️ CragControl</h1>
           <h2 className="text-3xl mb-6">First-Time Setup</h2>
-          <p className="text-zinc-400 mb-8">You are the first person to open the app.<br />Create your admin account.</p>
-          
+          <p className="text-zinc-400 mb-8">
+            You are the first person to open the app.<br />
+            Create your permanent admin account.
+          </p>
+
           <input
             type="text"
             value={adminName}
@@ -68,7 +70,7 @@ export default function Login() {
             placeholder="Your Full Name"
             className="w-full bg-zinc-800 border border-zinc-700 rounded-3xl px-8 py-6 text-2xl mb-6"
           />
-          
+
           <input
             type="password"
             value={adminPassword}
@@ -76,17 +78,13 @@ export default function Login() {
             placeholder="Choose a Strong Password"
             className="w-full bg-zinc-800 border border-zinc-700 rounded-3xl px-8 py-6 text-2xl mb-8"
           />
-          
-          <button 
+
+          <button
             onClick={handleFirstTimeSetup}
             className="w-full bg-green-500 py-6 rounded-3xl text-2xl font-medium"
           >
             Create Permanent Admin Account
           </button>
-          
-          <p className="text-xs text-zinc-500 mt-8">
-            This account cannot be demoted by anyone.
-          </p>
         </div>
       </div>
     );
@@ -98,7 +96,7 @@ export default function Login() {
       <div className="bg-zinc-900 p-10 rounded-3xl max-w-md w-full text-center">
         <h1 className="text-5xl mb-8">🏔️ CragControl</h1>
         <p className="text-xl mb-8">Front Desk Login</p>
-        
+
         <input
           type="password"
           value={password}
@@ -107,16 +105,16 @@ export default function Login() {
           placeholder="Enter password (press Enter)"
           className="w-full bg-zinc-800 border border-zinc-700 rounded-3xl px-8 py-6 text-2xl mb-6"
         />
-        
-        <button 
+
+        <button
           onClick={handleLogin}
           className="w-full bg-green-500 py-6 rounded-3xl text-2xl font-medium"
         >
           Login
         </button>
-        
+
         <p className="text-xs text-zinc-500 mt-8">
-          First admin already created • Press Enter after typing password
+          Permanent Super Admin already created
         </p>
       </div>
     </div>
