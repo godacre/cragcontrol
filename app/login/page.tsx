@@ -16,9 +16,7 @@ export default function Login() {
   }, []);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      handleLogin();
-    }
+    if (e.key === 'Enter') handleLogin();
   };
 
   const handleLogin = () => {
@@ -38,7 +36,6 @@ export default function Login() {
       return;
     }
 
-    // Create permanent super admin
     localStorage.setItem('cragcontrol_superAdminCreated', 'true');
     localStorage.setItem('cragcontrol_superAdminName', adminName);
     localStorage.setItem('cragcontrol_superAdminPassword', adminPassword);
@@ -46,8 +43,6 @@ export default function Login() {
     localStorage.setItem('cragcontrol_loggedIn', 'true');
 
     alert(`✅ Welcome, ${adminName}! You are now the permanent Super Admin.`);
-
-    // Force redirect
     router.push('/dashboard/checkin');
   };
 
@@ -93,30 +88,4 @@ export default function Login() {
   // Normal login screen
   return (
     <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
-      <div className="bg-zinc-900 p-10 rounded-3xl max-w-md w-full text-center">
-        <h1 className="text-5xl mb-8">🏔️ CragControl</h1>
-        <p className="text-xl mb-8">Front Desk Login</p>
-
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Enter password (press Enter)"
-          className="w-full bg-zinc-800 border border-zinc-700 rounded-3xl px-8 py-6 text-2xl mb-6"
-        />
-
-        <button
-          onClick={handleLogin}
-          className="w-full bg-green-500 py-6 rounded-3xl text-2xl font-medium"
-        >
-          Login
-        </button>
-
-        <p className="text-xs text-zinc-500 mt-8">
-          Permanent Super Admin already created
-        </p>
-      </div>
-    </div>
-  );
-}
+      <div className="bg-zinc-900 p-10 rounded-3xl max
