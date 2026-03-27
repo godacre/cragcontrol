@@ -38,7 +38,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <Link href="/dashboard/routes" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-lg ${pathname === '/dashboard/routes' ? 'bg-green-500' : 'hover:bg-zinc-800'}`}>🪨 Route Setting</Link>
           <Link href="/dashboard/reports" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-lg ${pathname === '/dashboard/reports' ? 'bg-green-500' : 'hover:bg-zinc-800'}`}>📊 Reports</Link>
 
-          {/* Staff Management - ONLY visible to Admins */}
+          {/* Staff Management - ONLY visible to Super Admin and Admin */}
           {isAdmin && (
             <Link href="/dashboard/staff" className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-lg ${pathname === '/dashboard/staff' ? 'bg-green-500' : 'hover:bg-zinc-800'}`}>👥 Staff Management</Link>
           )}
